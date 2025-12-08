@@ -1,0 +1,864 @@
+openapi: 3.0.3
+info:
+  title: Smartlead API (Unofficial)
+  version: "0.1.0"
+  description: |
+    Unofficial OpenAPI spec derived from Smartlead's public API documentation.
+    Base domain, auth style, and endpoints reflect published docs.
+servers:
+  - url: https://server.smartlead.ai/api/v1
+
+security:
+  - ApiKeyQuery: []
+
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+
+  schemas:
+    OkResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+
+    Campaign:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        name: { type: string }
+        status:
+          type: string
+          description: DRAFTED/ACTIVE/COMPLETED/STOPPED/PAUSED
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        track_settings: { type: string }
+        scheduler_cron_value: { type: string }
+        min_time_btwn_emails: { type: integer }
+        max_leads_per_day: { type: integer }
+        stop_lead_settings: { type: string }
+        unsubscribe_text: { type: string }
+        client_id: { type: integer, nullable: true }
+
+    Lead:
+      type: object
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string }
+        phone_number: { type: string, nullable: true }
+        company_name: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        linkedin_profile: { type: string, nullable: true }
+        company_url: { type: string, nullable: true }
+        custom_fields:
+          type: object
+          additionalProperties: true
+        is_unsubscribed: { type: boolean }
+
+    EmailAccount:
+      type: object
+      properties:
+        id: { type: integer }
+        from_name: { type: string }
+        from_email: { type: string }
+        username: { type: string }
+        smtp_host: { type: string }
+        smtp_port: { type: integer }
+        imap_host: { type: string }
+        imap_port: { type: integer }
+        message_per_day: { type: integer }
+        type:
+          type: string
+          description: SMTP/GMAIL/ZOHO/OUTLOOK
+        client_id: { type: integer, nullable: true }
+        warmup_details:
+          type: object
+          additionalProperties: true
+
+paths:
+  /campaigns:
+    get:
+      tags: [Campaigns]
+      summary: List all campaigns
+      description: Fetches all campaigns in your account.
+      responses:
+        "200":
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Campaign"
+
+  /campaigns/{campaign_id}:
+    parameters:
+      - name: campaign_id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Campaigns]
+      summary: Get campaign by ID
+      responses:
+        "200":
+          description: Campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      tags: [Campaigns]
+      summary: Delete campaign
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /campaigns/create:
+    post:
+      tags: [Campaigns]
+      summary: Create campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                client_id: { type: integer, nullable: true }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  id: { type: integer }
+                  name: { type: string }
+                  created_at: { type: string, format: date-time }
+
+  /campaigns/{campaign_id}/schedule:
+    post:
+      tags: [Campaigns]
+      summary: Update campaign schedule
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timezone: { type: string }
+                days_of_the_week:
+                  type: array
+                  items: { type: integer }
+                start_hour: { type: string }
+                end_hour: { type: string }
+                min_time_btw_emails: { type: integer }
+                max_new_leads_per_day: { type: integer }
+                schedule_start_time: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /campaigns/{campaign_id}/settings:
+    post:
+      tags: [Campaigns]
+      summary: Update campaign general settings
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                track_settings:
+                  type: array
+                  items: { type: string }
+                stop_lead_settings: { type: string }
+                unsubscribe_text: { type: string }
+                send_as_plain_text: { type: boolean }
+                follow_up_percentage: { type: integer }
+                client_id: { type: integer, nullable: true }
+                enable_ai_esp_matching: { type: boolean }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /campaigns/{campaign_id}/status:
+    post:
+      tags: [Campaigns]
+      summary: Patch campaign status
+      description: Status enum appears to be PAUSED/STOPPED/START.
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [PAUSED, STOPPED, START]
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /campaigns/{campaign_id}/email-accounts:
+    get:
+      tags: [Campaign Email Accounts]
+      summary: List email accounts per campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: List of email accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/EmailAccount" }
+    post:
+      tags: [Campaign Email Accounts]
+      summary: Add email accounts to campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_account_ids]
+              properties:
+                email_account_ids:
+                  type: array
+                  items: { type: integer }
+      responses:
+        "200":
+          description: Added
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+    delete:
+      tags: [Campaign Email Accounts]
+      summary: Remove email accounts from campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_account_ids]
+              properties:
+                email_account_ids:
+                  type: array
+                  items: { type: integer }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /campaigns/{campaign_id}/leads:
+    get:
+      tags: [Leads]
+      summary: List leads by campaign ID
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100 }
+      responses:
+        "200":
+          description: Paged lead list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_leads: { type: integer }
+                  offset: { type: integer }
+                  limit: { type: integer }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        campaign_lead_map_id: { type: integer }
+                        status: { type: string }
+                        created_at: { type: string, format: date-time }
+                        lead:
+                          $ref: "#/components/schemas/Lead"
+    post:
+      tags: [Leads]
+      summary: Add leads to campaign
+      description: Max 100 leads per call.
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_list]
+              properties:
+                lead_list:
+                  type: array
+                  maxItems: 100
+                  items:
+                    $ref: "#/components/schemas/Lead"
+                settings:
+                  type: object
+                  properties:
+                    ignore_global_block_list: { type: boolean }
+                    ignore_unsubscribe_list: { type: boolean }
+                    ignore_duplicate_leads_in_other_campaign: { type: boolean }
+      responses:
+        "200":
+          description: Upload summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  upload_count: { type: integer }
+                  total_leads: { type: integer }
+                  already_added_to_campaign: { type: integer }
+                  duplicate_count: { type: integer }
+                  invalid_email_count: { type: integer }
+                  unsubscribed_leads: { type: integer }
+
+  /campaigns/{campaign_id}/leads/{lead_id}/pause:
+    post:
+      tags: [Leads]
+      summary: Pause lead in campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: lead_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Paused
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data: { type: string }
+
+  /campaigns/{campaign_id}/leads/{lead_id}/resume:
+    post:
+      tags: [Leads]
+      summary: Resume lead in campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: lead_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resume_lead_with_delay_days: { type: integer, nullable: true }
+      responses:
+        "200":
+          description: Resumed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data: { type: string }
+
+  /campaigns/{campaign_id}/leads/{lead_id}:
+    delete:
+      tags: [Leads]
+      summary: Delete lead from campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: lead_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /campaigns/{campaign_id}/leads/{lead_id}/unsubscribe:
+    post:
+      tags: [Leads]
+      summary: Unsubscribe/pause lead from campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: lead_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Unsubscribed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /leads:
+    get:
+      tags: [Leads]
+      summary: Fetch lead by email address
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Lead
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Lead" }
+
+  /leads/{lead_id}/unsubscribe:
+    post:
+      tags: [Leads]
+      summary: Unsubscribe lead from all campaigns
+      parameters:
+        - name: lead_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Unsubscribed globally
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /leads/{lead_id}/campaigns:
+    get:
+      tags: [Leads]
+      summary: Fetch all campaigns using lead ID
+      parameters:
+        - name: lead_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: List of campaigns for lead
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    status: { type: string }
+                    name: { type: string }
+
+  /campaigns/{campaign_id}/statistics:
+    get:
+      tags: [Analytics]
+      summary: Fetch campaign statistics
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100 }
+        - name: email_sequence_number
+          in: query
+          schema: { type: integer }
+        - name: email_status
+          in: query
+          schema:
+            type: string
+            description: opened/clicked/replied/unsubscribed/bounced
+      responses:
+        "200":
+          description: Stats list
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /campaigns/{campaign_id}/analytics:
+    get:
+      tags: [Analytics]
+      summary: Fetch campaign top level analytics
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Analytics summary
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /campaigns/{campaign_id}/analytics-by-date:
+    get:
+      tags: [Analytics]
+      summary: Fetch campaign stats by date range
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: start_date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Analytics by date
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /campaigns/{campaign_id}/webhooks:
+    get:
+      tags: [Webhooks]
+      summary: Fetch webhooks by campaign ID
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Webhook list
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+    post:
+      tags: [Webhooks]
+      summary: Add or update campaign webhook
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: { type: integer, nullable: true }
+                name: { type: string }
+                webhook_url: { type: string }
+                event_types:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - EMAIL_SENT
+                      - EMAIL_OPEN
+                      - EMAIL_LINK_CLICK
+                      - EMAIL_REPLY
+                      - LEAD_UNSUBSCRIBED
+                      - LEAD_CATEGORY_UPDATED
+                categories:
+                  type: array
+                  items: { type: string }
+      responses:
+        "200":
+          description: Webhook saved
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+    delete:
+      tags: [Webhooks]
+      summary: Delete campaign webhook
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer }
+      responses:
+        "200":
+          description: Webhook deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /email-accounts:
+    get:
+      tags: [Email Accounts]
+      summary: Fetch all email accounts associated to a user
+      parameters:
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100 }
+      responses:
+        "200":
+          description: Email accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/EmailAccount" }
+
+  /email-accounts/save:
+    post:
+      tags: [Email Accounts]
+      summary: Create an email account
+      description: Set id null to create.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200":
+          description: Email account created/updated
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /email-accounts/{email_account_id}:
+    post:
+      tags: [Email Accounts]
+      summary: Update email account
+      parameters:
+        - name: email_account_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /email-accounts/{account_id}/:
+    get:
+      tags: [Email Accounts]
+      summary: Fetch email account by ID
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Email account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EmailAccount" }
+
+  /email-accounts/{email_account_id}/warmup:
+    post:
+      tags: [Warmup]
+      summary: Add/update warmup to email account
+      parameters:
+        - name: email_account_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                warmup_enabled: { type: boolean }
+                total_warmup_per_day: { type: integer, nullable: true }
+                daily_rampup: { type: integer, nullable: true }
+                reply_rate_percentage: { type: integer, nullable: true }
+                warmup_key_id: { type: string, nullable: true }
+      responses:
+        "200":
+          description: Warmup updated
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /email-accounts/{email_account_id}/warmup-stats:
+    get:
+      tags: [Warmup]
+      summary: Fetch warmup stats by email account ID
+      parameters:
+        - name: email_account_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Warmup stats (last 7 days)
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /email-accounts/reconnect-failed-email-accounts:
+    post:
+      tags: [Email Accounts]
+      summary: Reconnect failed email accounts (bulk)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200":
+          description: Queued for reconnect
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /client/save:
+    post:
+      tags: [Clients]
+      summary: Add client to system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        "200":
+          description: Client created
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /client/:
+    get:
+      tags: [Clients]
+      summary: Fetch all clients
+      responses:
+        "200":
+          description: Client list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: object, additionalProperties: true }

@@ -1,0 +1,32 @@
+{
+  "name": "smartlead-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Smartlead API - enables AI assistants to manage email campaigns, leads, and analytics",
+  "type": "module",
+  "bin": {
+    "smartlead-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "smartlead",
+    "email",
+    "campaigns",
+    "model-context-protocol"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.7.9",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
