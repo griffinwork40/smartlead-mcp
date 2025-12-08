@@ -194,6 +194,35 @@ export const UpdateWarmupSettingsSchema = z.object({
   warmup_key_id: z.string().optional().describe('Warmup key ID'),
 });
 
+export const CreateEmailAccountSchema = z.object({
+  from_name: z.string().min(1).describe('Display name for the email account'),
+  from_email: z.string().email().describe('Email address'),
+  username: z.string().min(1).describe('Username for SMTP/IMAP authentication'),
+  password: z.string().min(1).describe('Password for SMTP/IMAP authentication'),
+  smtp_host: z.string().min(1).describe('SMTP server hostname'),
+  smtp_port: z.number().int().positive().describe('SMTP server port'),
+  imap_host: z.string().min(1).describe('IMAP server hostname'),
+  imap_port: z.number().int().positive().describe('IMAP server port'),
+  message_per_day: z.number().int().positive().describe('Maximum messages per day'),
+  type: z.enum(['SMTP', 'GMAIL', 'ZOHO', 'OUTLOOK']).describe('Email account type'),
+  client_id: z.number().int().optional().describe('Client ID (optional)'),
+}).passthrough().describe('Create a new email account by connecting existing SMTP/IMAP credentials');
+
+export const UpdateEmailAccountSchema = z.object({
+  email_account_id: z.number().int().positive().describe('Email account ID'),
+  from_name: z.string().min(1).optional().describe('Display name for the email account'),
+  from_email: z.string().email().optional().describe('Email address'),
+  username: z.string().min(1).optional().describe('Username for SMTP/IMAP authentication'),
+  password: z.string().min(1).optional().describe('Password for SMTP/IMAP authentication'),
+  smtp_host: z.string().min(1).optional().describe('SMTP server hostname'),
+  smtp_port: z.number().int().positive().optional().describe('SMTP server port'),
+  imap_host: z.string().min(1).optional().describe('IMAP server hostname'),
+  imap_port: z.number().int().positive().optional().describe('IMAP server port'),
+  message_per_day: z.number().int().positive().optional().describe('Maximum messages per day'),
+  type: z.enum(['SMTP', 'GMAIL', 'ZOHO', 'OUTLOOK']).optional().describe('Email account type'),
+  client_id: z.number().int().optional().describe('Client ID'),
+}).passthrough().describe('Update email account settings');
+
 export const GetCampaignStatisticsSchema = z.object({
   campaign_id: z.number().int().positive().describe('Campaign ID'),
   offset: z.number().int().min(0).default(0).describe('Offset for pagination'),

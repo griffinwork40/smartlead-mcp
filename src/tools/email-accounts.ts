@@ -11,6 +11,8 @@ import {
   ListEmailAccountsSchema,
   GetEmailAccountSchema,
   UpdateWarmupSettingsSchema,
+  CreateEmailAccountSchema,
+  UpdateEmailAccountSchema,
 } from '../types/smartlead.js';
 
 /**
@@ -115,6 +117,57 @@ export async function reconnectFailedAccounts(
       {
         type: 'text',
         text: 'Reconnection process initiated for failed email accounts.\n\n' + JSON.stringify(result, null, 2),
+      },
+    ],
+  };
+}
+
+/**
+ * Create a new email account by connecting existing SMTP/IMAP credentials
+ * Note: This connects an existing email account, it does not create accounts using Smartlead's infrastructure
+ */
+export async function createEmailAccount(
+  client: SmartleadClient,
+  args: unknown
+): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const params = CreateEmailAccountSchema.parse(args);
+
+  // Set id to null to indicate creation (per OpenAPI spec)
+  const accountData = {
+    id: null,
+    ...params,
+  };
+
+  const result = await client.post<EmailAccount>('/email-accounts/save', accountData);
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: `Email account created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+      },
+    ],
+  };
+}
+
+/**
+ * Update email account settings
+ */
+export async function updateEmailAccount(
+  client: SmartleadClient,
+  args: unknown
+): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const params = UpdateEmailAccountSchema.parse(args);
+
+  const { email_account_id, ...updateData } = params;
+
+  const result = await client.post<EmailAccount>(`/email-accounts/${email_account_id}`, updateData);
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: `Email account ${email_account_id} updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
       },
     ],
   };
