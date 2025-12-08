@@ -133,9 +133,11 @@ export async function createEmailAccount(
   const params = CreateEmailAccountSchema.parse(args);
 
   // Set id to null to indicate creation (per OpenAPI spec)
+  // Spread params first, then explicitly set id to null to ensure it's always null
+  // even if passthrough() allows an id field in params
   const accountData = {
-    id: null,
     ...params,
+    id: null,
   };
 
   const result = await client.post<EmailAccount>('/email-accounts/save', accountData);
