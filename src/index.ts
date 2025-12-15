@@ -32,6 +32,8 @@ import {
   ListEmailAccountsSchema,
   GetEmailAccountSchema,
   UpdateWarmupSettingsSchema,
+  CreateEmailAccountSchema,
+  UpdateEmailAccountSchema,
   GetCampaignStatisticsSchema,
   GetCampaignAnalyticsByDateSchema,
 } from './types/smartlead.js';
@@ -373,6 +375,49 @@ const TOOLS: Tool[] = [
       properties: {},
     },
   },
+  {
+    name: 'create_email_account',
+    description: 'Create a new email account by connecting existing SMTP/IMAP credentials (Gmail, Outlook, custom SMTP, etc.)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        from_name: { type: 'string', description: 'Display name for the email account' },
+        from_email: { type: 'string', description: 'Email address' },
+        username: { type: 'string', description: 'Username for SMTP/IMAP authentication' },
+        password: { type: 'string', description: 'Password for SMTP/IMAP authentication' },
+        smtp_host: { type: 'string', description: 'SMTP server hostname' },
+        smtp_port: { type: 'number', description: 'SMTP server port' },
+        imap_host: { type: 'string', description: 'IMAP server hostname' },
+        imap_port: { type: 'number', description: 'IMAP server port' },
+        message_per_day: { type: 'number', description: 'Maximum messages per day' },
+        type: { type: 'string', enum: ['SMTP', 'GMAIL', 'ZOHO', 'OUTLOOK'], description: 'Email account type' },
+        client_id: { type: 'number', description: 'Client ID (optional)' },
+      },
+      required: ['from_name', 'from_email', 'username', 'password', 'smtp_host', 'smtp_port', 'imap_host', 'imap_port', 'message_per_day', 'type'],
+    },
+  },
+  {
+    name: 'update_email_account',
+    description: 'Update email account settings (SMTP/IMAP credentials, message limits, etc.)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        email_account_id: { type: 'number', description: 'Email account ID' },
+        from_name: { type: 'string', description: 'Display name for the email account' },
+        from_email: { type: 'string', description: 'Email address' },
+        username: { type: 'string', description: 'Username for SMTP/IMAP authentication' },
+        password: { type: 'string', description: 'Password for SMTP/IMAP authentication' },
+        smtp_host: { type: 'string', description: 'SMTP server hostname' },
+        smtp_port: { type: 'number', description: 'SMTP server port' },
+        imap_host: { type: 'string', description: 'IMAP server hostname' },
+        imap_port: { type: 'number', description: 'IMAP server port' },
+        message_per_day: { type: 'number', description: 'Maximum messages per day' },
+        type: { type: 'string', enum: ['SMTP', 'GMAIL', 'ZOHO', 'OUTLOOK'], description: 'Email account type' },
+        client_id: { type: 'number', description: 'Client ID' },
+      },
+      required: ['email_account_id'],
+    },
+  },
 
   // Analytics Tools
   {
@@ -519,6 +564,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     if (name === 'reconnect_failed_accounts') {
       return await emailAccountTools.reconnectFailedAccounts(smartleadClient);
+    }
+    if (name === 'create_email_account') {
+      return await emailAccountTools.createEmailAccount(smartleadClient, args);
+    }
+    if (name === 'update_email_account') {
+      return await emailAccountTools.updateEmailAccount(smartleadClient, args);
     }
 
     // Analytics Tools
