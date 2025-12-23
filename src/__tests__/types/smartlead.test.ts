@@ -25,7 +25,7 @@ import {
   GetCampaignStatisticsSchema,
   GetCampaignAnalyticsByDateSchema,
   ManageCampaignEmailAccountsSchema,
-} from '../../types/smartlead';
+} from '../../types/smartlead.js';
 
 describe('Zod Validation Schemas', () => {
   // ===========================================================================
