@@ -21,7 +21,10 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "mcp",
@@ -50,6 +53,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "@vitest/coverage-v8": "^4.0.16",
+    "typescript": "^5.7.2",
+    "vitest": "^4.0.16"
   }
 }
