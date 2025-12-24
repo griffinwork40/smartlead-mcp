@@ -61,12 +61,44 @@ export function createServer(
     try {
       return await executeTool(name, client, args);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      // Categorize and format errors for better debugging
+      let errorMessage: string;
+      let errorType: string;
+
+      if (error instanceof Error) {
+        // Check for Zod validation errors
+        if (error.name === 'ZodError') {
+          errorType = 'Validation Error';
+          errorMessage = `Invalid input: ${error.message}`;
+        }
+        // Check for API errors (from SmartleadClient)
+        else if (error.message.includes('Smartlead API error')) {
+          errorType = 'API Error';
+          errorMessage = error.message;
+        }
+        // Check for unknown tool errors
+        else if (error.message.includes('Unknown tool')) {
+          errorType = 'Tool Error';
+          errorMessage = error.message;
+        }
+        // Generic error
+        else {
+          errorType = 'Error';
+          errorMessage = error.message;
+        }
+      } else {
+        errorType = 'Unknown Error';
+        errorMessage = 'An unexpected error occurred';
+      }
+
+      // Log error for debugging (excluding sensitive data)
+      console.error(`[${errorType}] Tool: ${name} - ${errorMessage}`);
+
       return {
         content: [
           {
             type: 'text',
-            text: `Error: ${errorMessage}`,
+            text: `${errorType}: ${errorMessage}`,
           },
         ],
         isError: true,

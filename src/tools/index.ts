@@ -102,6 +102,12 @@ export async function executeTool(
     throw new Error(`Unknown tool: ${toolName}`);
   }
 
+  // Validate tool exists in schema registry for consistency
+  const toolInRegistry = ALL_TOOLS.some((tool) => tool.name === toolName);
+  if (!toolInRegistry) {
+    console.warn(`[Warning] Handler exists for '${toolName}' but tool not found in ALL_TOOLS schema registry`);
+  }
+
   return handler(client, args);
 }
 

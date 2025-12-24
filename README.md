@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that provides AI assistants with access to
 
 ## Features
 
-This MCP server exposes **28 tools** covering the core Smartlead API functionality:
+This MCP server exposes **29 tools** covering the core Smartlead API functionality:
 
 ### Campaign Management (10 tools)
 - `create_campaign` - Create a new email campaign
@@ -29,9 +29,11 @@ This MCP server exposes **28 tools** covering the core Smartlead API functionali
 - `unsubscribe_lead_globally` - Unsubscribe lead from all campaigns
 - `get_lead_campaigns` - Get all campaigns for a lead
 
-### Email Account Management (5 tools)
+### Email Account Management (7 tools)
 - `list_email_accounts` - List all email accounts
 - `get_email_account` - Get email account details
+- `create_email_account` - Create a new email account (connect SMTP/IMAP)
+- `update_email_account` - Update email account settings
 - `update_warmup_settings` - Configure email warmup settings
 - `get_warmup_stats` - Get warmup statistics (last 7 days)
 - `reconnect_failed_accounts` - Reconnect failed email accounts
@@ -143,19 +145,41 @@ npm run watch
 ```
 smartlead-mcp/
 ├── src/
-│   ├── index.ts              # Main MCP server entry point
+│   ├── index.ts              # Entry point (~40 lines)
+│   ├── server.ts             # MCP server configuration
 │   ├── smartlead-client.ts   # API client wrapper
-│   ├── tools/                # MCP tool implementations
-│   │   ├── campaigns.ts      # Campaign management tools
-│   │   ├── leads.ts          # Lead management tools
-│   │   ├── email-accounts.ts # Email account tools
-│   │   └── analytics.ts      # Analytics tools
+│   ├── schemas/              # MCP tool definitions
+│   │   ├── index.ts          # Schema exports
+│   │   ├── campaigns.ts      # Campaign tool schemas
+│   │   ├── leads.ts          # Lead tool schemas
+│   │   ├── email-accounts.ts # Email account tool schemas
+│   │   └── analytics.ts      # Analytics tool schemas
+│   ├── tools/                # MCP tool handlers
+│   │   ├── index.ts          # Tool registry
+│   │   ├── campaigns.ts      # Campaign handlers
+│   │   ├── leads.ts          # Lead handlers
+│   │   ├── email-accounts.ts # Email account handlers
+│   │   ├── analytics.ts      # Analytics handlers
+│   │   └── __tests__/        # Unit tests
 │   └── types/
 │       └── smartlead.ts      # TypeScript type definitions
 ├── openapi.yaml              # OpenAPI spec reference
+├── vitest.config.ts          # Test configuration
 ├── package.json
 ├── tsconfig.json
 └── README.md
+```
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
 ```
 
 ## API Reference
