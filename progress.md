@@ -2,6 +2,54 @@
 
 **Project Completion: 100%** ✅
 
+## Recent Changes
+
+### Code Review Fixes ✅ (Dec 2025)
+
+Addressed all code review feedback from PR #3:
+
+1. **Test Coverage Added** - 74 unit tests across 5 test files:
+   - `campaigns.test.ts` - 18 tests for campaign handlers
+   - `leads.test.ts` - 17 tests for lead handlers
+   - `email-accounts.test.ts` - 14 tests for email account handlers
+   - `analytics.test.ts` - 13 tests for analytics handlers
+   - `index.test.ts` - 12 tests for tool registry
+
+2. **Improved Error Handling** - Categorized errors in `server.ts`:
+   - Validation errors (Zod)
+   - API errors (SmartleadClient)
+   - Tool errors (unknown tool)
+   - Error logging for debugging
+
+3. **Schema/Handler Consistency Validation** - Added warning when handler exists but tool not in schema registry
+
+4. **Documentation Updates**:
+   - README.md: Corrected tool count (28 → 29)
+   - README.md: Added `create_email_account` and `update_email_account` to feature list
+   - README.md: Updated project structure to show modular architecture
+   - README.md: Added test commands section
+
+### Modular Architecture Refactor ✅ (Dec 2025)
+
+Refactored the monolithic 611-line `index.ts` into a clean modular architecture:
+
+- **`index.ts`** - Now only 40 lines (was 611). Clean entry point that boots MCP and starts server.
+- **`server.ts`** - MCP server configuration with tool registration (~75 lines)
+- **`schemas/`** - Domain-specific MCP tool definitions:
+  - `campaigns.ts` - Campaign tool schemas (10 tools)
+  - `leads.ts` - Lead tool schemas (9 tools)
+  - `email-accounts.ts` - Email account tool schemas (7 tools)
+  - `analytics.ts` - Analytics tool schemas (3 tools)
+  - `index.ts` - Re-exports all schemas
+- **`tools/index.ts`** - Central tool registry with handler mapping and execution
+
+**Benefits:**
+- Clear separation of concerns
+- Tool definitions separate from handlers
+- Easy to add new tools (just add schema + handler)
+- Testable components
+- ~93% reduction in index.ts size
+
 ## Completed Tasks
 
 ### Phase 1: Foundation & Core Implementation ✅
@@ -54,9 +102,11 @@
 - [x] `unsubscribe_lead_globally` - Unsubscribe from all
 - [x] `get_lead_campaigns` - Get all campaigns for lead
 
-**Email Account Management (5 tools):**
+**Email Account Management (7 tools):**
 - [x] `list_email_accounts` - List all accounts
 - [x] `get_email_account` - Get account details
+- [x] `create_email_account` - Create new email account
+- [x] `update_email_account` - Update account settings
 - [x] `update_warmup_settings` - Configure warmup
 - [x] `get_warmup_stats` - Get warmup statistics
 - [x] `reconnect_failed_accounts` - Reconnect failed accounts
@@ -67,11 +117,11 @@
 - [x] `get_campaign_analytics_by_date` - Date range analytics
 
 #### 5. Main Server ✅
-- [x] **index.ts** - MCP server initialization with:
-  - Stdio transport
-  - All 28 tools registered
-  - Comprehensive error handling
-  - Environment variable validation
+- [x] **index.ts** - Minimal MCP server entry point (~40 lines)
+- [x] **server.ts** - MCP server configuration with tool registration
+- [x] All 29 tools registered
+- [x] Comprehensive error handling
+- [x] Environment variable validation
 
 #### 6. Documentation ✅
 - [x] **README.md** - Complete documentation with:
@@ -84,11 +134,11 @@
 
 ## Project Statistics
 
-- **Total Tools Implemented:** 28 tools
-- **Lines of Code:** ~1,100+ lines of TypeScript
+- **Total Tools Implemented:** 29 tools
+- **Lines of Code:** ~1,500+ lines of TypeScript
 - **Build Status:** ✅ Successful (0 errors, 0 warnings)
-- **Dependencies:** 3 production, 2 dev dependencies
-- **Test Status:** Ready for integration testing
+- **Dependencies:** 3 production, 3 dev dependencies
+- **Test Status:** ✅ 74 tests passing (5 test files)
 
 ## File Structure
 
@@ -103,19 +153,29 @@ smartlead-mcp/
 ├── progress.md               ✅ This file
 ├── build/                    ✅ Compiled output
 │   ├── index.js
+│   ├── server.js
 │   ├── smartlead-client.js
+│   ├── schemas/
 │   ├── tools/
 │   └── types/
 └── src/
-    ├── index.ts              ✅ Main server (561 lines)
+    ├── index.ts              ✅ Entry point (40 lines)
+    ├── server.ts             ✅ MCP server config (75 lines)
     ├── smartlead-client.ts   ✅ API client (132 lines)
+    ├── schemas/
+    │   ├── index.ts          ✅ Schema exports
+    │   ├── campaigns.ts      ✅ Campaign tool schemas
+    │   ├── leads.ts          ✅ Lead tool schemas
+    │   ├── email-accounts.ts ✅ Email account tool schemas
+    │   └── analytics.ts      ✅ Analytics tool schemas
     ├── tools/
-    │   ├── campaigns.ts      ✅ Campaign tools (243 lines)
-    │   ├── leads.ts          ✅ Lead tools (246 lines)
-    │   ├── email-accounts.ts ✅ Email tools (122 lines)
-    │   └── analytics.ts      ✅ Analytics tools (95 lines)
+    │   ├── index.ts          ✅ Tool registry (100 lines)
+    │   ├── campaigns.ts      ✅ Campaign handlers (243 lines)
+    │   ├── leads.ts          ✅ Lead handlers (246 lines)
+    │   ├── email-accounts.ts ✅ Email handlers (177 lines)
+    │   └── analytics.ts      ✅ Analytics handlers (95 lines)
     └── types/
-        └── smartlead.ts      ✅ Type definitions (215 lines)
+        └── smartlead.ts      ✅ Type definitions (244 lines)
 ```
 
 ## Next Steps (Optional)
@@ -142,7 +202,7 @@ smartlead-mcp/
      "mcpServers": {
        "smartlead": {
          "command": "node",
-         "args": ["/Users/griffinlong/Projects/atlas_projects/smartlead-mcp/build/index.js"],
+         "args": ["/path/to/smartlead-mcp/build/index.js"],
          "env": {
            "SMARTLEAD_API_KEY": "your_api_key_here"
          }
@@ -161,19 +221,21 @@ smartlead-mcp/
 ✅ **Code Quality:** JSDoc comments, clear structure, separated concerns  
 ✅ **Documentation:** Complete README with examples and troubleshooting  
 ✅ **Best Practices:** Following MCP patterns and TypeScript conventions  
+✅ **Modularity:** Clean separation of schemas, handlers, and server config
 
 ## Success Metrics
 
-- ✅ All Phase 1 tools implemented (28/28)
+- ✅ All Phase 1 tools implemented (29/29)
 - ✅ Clean build (0 errors, 0 warnings)
 - ✅ Type-safe implementation
-- ✅ Comprehensive error handling
+- ✅ Comprehensive error handling (categorized by type)
 - ✅ Production-ready documentation
 - ✅ Security best practices followed
+- ✅ Modular architecture (index.ts reduced from 611 to 40 lines)
+- ✅ Test coverage (74 tests passing)
 
 ---
 
 **Status:** Ready for production use! 🚀
 
-The Smartlead MCP server is fully functional and ready to be integrated with Claude Desktop or any other MCP client. All core features from the Smartlead API are exposed through well-designed, type-safe tools.
-
+The Smartlead MCP server is fully functional and ready to be integrated with Claude Desktop or any other MCP client. All core features from the Smartlead API are exposed through well-designed, type-safe tools with a clean modular architecture.
