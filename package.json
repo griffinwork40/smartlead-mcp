@@ -21,7 +21,12 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "test:verbose": "NODE_OPTIONS='--experimental-vm-modules' jest --verbose",
+    "test:ci": "NODE_OPTIONS='--experimental-vm-modules' jest --ci --coverage --reporters=default"
   },
   "keywords": [
     "mcp",
@@ -49,7 +54,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.10.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
     "typescript": "^5.7.2"
   }
 }
