@@ -226,6 +226,77 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/OkResponse" }
 
+  /campaigns/{campaign_id}/sequences:
+    post:
+      tags: [Campaigns]
+      summary: Save campaign email sequences
+      description: |
+        Create or update email sequences for a campaign.
+        Pass id to update existing sequence, omit or set null to create new.
+        Supports A/B testing with multiple variants per sequence.
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sequences]
+              properties:
+                sequences:
+                  type: array
+                  items:
+                    type: object
+                    required: [seq_number, seq_delay_details, seq_variants]
+                    properties:
+                      id:
+                        type: integer
+                        nullable: true
+                        description: Sequence ID (null to create, number to update)
+                      seq_number:
+                        type: integer
+                        description: Sequence order (1, 2, 3...)
+                      seq_delay_details:
+                        type: object
+                        properties:
+                          delay_in_days: { type: integer, default: 0 }
+                          delay_in_hours: { type: integer, default: 0 }
+                          delay_in_minutes: { type: integer, default: 0 }
+                      seq_variants:
+                        type: array
+                        items:
+                          type: object
+                          required: [subject, email_body, variant_label]
+                          properties:
+                            subject: { type: string }
+                            email_body: { type: string }
+                            variant_label: { type: string, description: 'A/B test variant label (e.g., "A", "B")' }
+                            distribution_percentage: { type: integer }
+                ab_testing_config:
+                  type: object
+                  properties:
+                    distribution_type:
+                      type: string
+                      enum: [MANUAL_EQUAL, AI_EQUAL, MANUAL_PERCENTAGE]
+                    winning_metric_property:
+                      type: string
+                      enum: [OPEN_RATE, CLICK_RATE, REPLY_RATE, POSITIVE_REPLY_RATE]
+                    lead_distribution_percentage: { type: integer, minimum: 20 }
+      responses:
+        "200":
+          description: Sequences saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  sequences: { type: array, items: { type: object } }
+
   /campaigns/{campaign_id}/status:
     post:
       tags: [Campaigns]

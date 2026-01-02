@@ -36,6 +36,7 @@ import {
   UpdateEmailAccountSchema,
   GetCampaignStatisticsSchema,
   GetCampaignAnalyticsByDateSchema,
+  SaveCampaignSequencesSchema,
 } from './types/smartlead.js';
 import * as campaignTools from './tools/campaigns.js';
 import * as leadTools from './tools/leads.js';
@@ -177,6 +178,68 @@ const TOOLS: Tool[] = [
         email_account_ids: { type: 'array', items: { type: 'number' }, description: 'Email account IDs' },
       },
       required: ['campaign_id', 'email_account_ids'],
+    },
+  },
+  {
+    name: 'save_campaign_sequences',
+    description: 'Create or update email sequences for a campaign. Pass id to update existing sequence, omit or set null to create new. Supports A/B testing with multiple variants.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        campaign_id: { type: 'number', description: 'Campaign ID' },
+        sequences: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number', nullable: true, description: 'Sequence ID (null=create, number=update)' },
+              seq_number: { type: 'number', description: 'Sequence order (1, 2, 3...)' },
+              seq_delay_details: {
+                type: 'object',
+                properties: {
+                  delay_in_days: { type: 'number', description: 'Delay in days before sending' },
+                  delay_in_hours: { type: 'number', description: 'Delay in hours' },
+                  delay_in_minutes: { type: 'number', description: 'Delay in minutes' },
+                },
+              },
+              seq_variants: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    subject: { type: 'string', description: 'Email subject line' },
+                    email_body: { type: 'string', description: 'Email body (HTML supported)' },
+                    variant_label: { type: 'string', description: 'A/B test variant label (e.g., "A", "B")' },
+                    distribution_percentage: { type: 'number', description: 'Distribution percentage' },
+                  },
+                  required: ['subject', 'email_body', 'variant_label'],
+                },
+                description: 'Email variants for A/B testing',
+              },
+            },
+            required: ['seq_number', 'seq_delay_details', 'seq_variants'],
+          },
+          description: 'Email sequences to save',
+        },
+        ab_testing_config: {
+          type: 'object',
+          properties: {
+            distribution_type: {
+              type: 'string',
+              enum: ['MANUAL_EQUAL', 'AI_EQUAL', 'MANUAL_PERCENTAGE'],
+              description: 'How to distribute A/B variants',
+            },
+            winning_metric_property: {
+              type: 'string',
+              enum: ['OPEN_RATE', 'CLICK_RATE', 'REPLY_RATE', 'POSITIVE_REPLY_RATE'],
+              description: 'Metric to determine winning variant',
+            },
+            lead_distribution_percentage: { type: 'number', description: 'Percentage of leads for A/B test' },
+          },
+          description: 'A/B testing configuration',
+        },
+      },
+      required: ['campaign_id', 'sequences'],
     },
   },
 
@@ -518,6 +581,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     if (name === 'remove_campaign_email_accounts') {
       return await campaignTools.removeCampaignEmailAccounts(smartleadClient, args);
+    }
+    if (name === 'save_campaign_sequences') {
+      return await campaignTools.saveCampaignSequences(smartleadClient, args);
     }
 
     // Lead Management Tools
