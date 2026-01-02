@@ -17,6 +17,8 @@ import {
   UpdateCampaignSettingsSchema,
   UpdateCampaignStatusSchema,
   ManageCampaignEmailAccountsSchema,
+  SaveCampaignSequencesSchema,
+  SaveSequencesResponse,
 } from '../types/smartlead.js';
 
 /**
@@ -236,6 +238,39 @@ export async function removeCampaignEmailAccounts(
       {
         type: 'text',
         text: `Successfully removed ${params.email_account_ids.length} email accounts from campaign ${params.campaign_id}.`,
+      },
+    ],
+  };
+}
+
+/**
+ * Save email sequences for a campaign
+ * Creates new sequences if id is null, updates existing if id is provided
+ */
+export async function saveCampaignSequences(
+  client: SmartleadClient,
+  args: unknown
+): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const params = SaveCampaignSequencesSchema.parse(args);
+
+  const { campaign_id, ...sequenceData } = params;
+
+  const result = await client.post<SaveSequencesResponse>(
+    `/campaigns/${campaign_id}/sequences`,
+    sequenceData
+  );
+
+  const seqCount = params.sequences.length;
+  const hasUpdates = params.sequences.some((s: { id?: number | null }) => s.id);
+  const action = hasUpdates ? 'updated' : 'created';
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: result.ok
+          ? `Successfully ${action} ${seqCount} email sequence(s) for campaign ${campaign_id}!`
+          : `Failed to save sequences for campaign ${campaign_id}.`,
       },
     ],
   };

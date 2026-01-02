@@ -241,3 +241,62 @@ export const ManageCampaignEmailAccountsSchema = z.object({
   campaign_id: z.number().int().positive().describe('Campaign ID'),
   email_account_ids: z.array(z.number().int().positive()).min(1).describe('Email account IDs'),
 });
+
+// ============================================================================
+// Email Sequence Types and Schema
+// ============================================================================
+
+export interface SequenceVariant {
+  subject: string;
+  email_body: string;
+  variant_label: string;  // Required by SmartLead API
+  distribution_percentage?: number;
+}
+
+export interface SequenceDelayDetails {
+  delay_in_days?: number;
+  delay_in_hours?: number;
+  delay_in_minutes?: number;
+}
+
+export interface Sequence {
+  id?: number | null;
+  seq_number: number;
+  seq_delay_details: SequenceDelayDetails;
+  seq_variants: SequenceVariant[];
+}
+
+export interface ABTestingConfig {
+  distribution_type: 'MANUAL_EQUAL' | 'AI_EQUAL' | 'MANUAL_PERCENTAGE';
+  winning_metric_property?: 'OPEN_RATE' | 'CLICK_RATE' | 'REPLY_RATE' | 'POSITIVE_REPLY_RATE';
+  lead_distribution_percentage?: number;
+}
+
+export interface SaveSequencesResponse {
+  ok: boolean;
+  sequences?: unknown[];
+}
+
+export const SaveCampaignSequencesSchema = z.object({
+  campaign_id: z.number().int().positive().describe('Campaign ID'),
+  sequences: z.array(z.object({
+    id: z.number().int().nullable().optional().describe('Sequence ID (null to create, number to update)'),
+    seq_number: z.number().int().positive().describe('Sequence order (1, 2, 3...)'),
+    seq_delay_details: z.object({
+      delay_in_days: z.number().int().min(0).default(0).describe('Delay in days before sending'),
+      delay_in_hours: z.number().int().min(0).default(0).describe('Delay in hours'),
+      delay_in_minutes: z.number().int().min(0).default(0).describe('Delay in minutes'),
+    }),
+    seq_variants: z.array(z.object({
+      subject: z.string().min(1).describe('Email subject line'),
+      email_body: z.string().min(1).describe('Email body (HTML supported)'),
+      variant_label: z.string().min(1).describe('A/B test variant label (e.g., "A", "B")'),
+      distribution_percentage: z.number().int().min(0).max(100).optional().describe('Distribution percentage for variant'),
+    })).min(1).describe('Email variants for A/B testing'),
+  })).min(1).describe('Email sequences to save'),
+  ab_testing_config: z.object({
+    distribution_type: z.enum(['MANUAL_EQUAL', 'AI_EQUAL', 'MANUAL_PERCENTAGE']).describe('How to distribute A/B variants'),
+    winning_metric_property: z.enum(['OPEN_RATE', 'CLICK_RATE', 'REPLY_RATE', 'POSITIVE_REPLY_RATE']).optional().describe('Metric to determine winning variant'),
+    lead_distribution_percentage: z.number().int().min(20).max(100).optional().describe('Percentage of leads for A/B test'),
+  }).optional().describe('A/B testing configuration'),
+});
