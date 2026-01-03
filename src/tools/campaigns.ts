@@ -78,7 +78,7 @@ export async function listCampaigns(
     content: [
       {
         type: 'text',
-        text: `Found ${campaigns.length} campaigns:\n\n${JSON.stringify(campaigns, null, 2)}`,
+        text: JSON.stringify(campaigns, null, 2),
       },
     ],
   };
@@ -191,7 +191,7 @@ export async function listCampaignEmailAccounts(
     content: [
       {
         type: 'text',
-        text: `Found ${accounts.length} email accounts for campaign ${params.campaign_id}:\n\n${JSON.stringify(accounts, null, 2)}`,
+        text: JSON.stringify(accounts, null, 2),
       },
     ],
   };

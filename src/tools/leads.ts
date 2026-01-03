@@ -37,7 +37,7 @@ export async function listCampaignLeads(
     content: [
       {
         type: 'text',
-        text: `Found ${result.total_leads} total leads in campaign ${params.campaign_id}.\n\nShowing ${result.data.length} leads (offset: ${result.offset}, limit: ${result.limit}):\n\n${JSON.stringify(result.data, null, 2)}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -192,7 +192,7 @@ export async function getLeadByEmail(
     content: [
       {
         type: 'text',
-        text: `Lead found:\n\n${JSON.stringify(lead, null, 2)}`,
+        text: JSON.stringify(lead, null, 2),
       },
     ],
   };
@@ -238,7 +238,7 @@ export async function getLeadCampaigns(
     content: [
       {
         type: 'text',
-        text: `Found ${campaigns.length} campaigns for lead ${params.lead_id}:\n\n${JSON.stringify(campaigns, null, 2)}`,
+        text: JSON.stringify(campaigns, null, 2),
       },
     ],
   };
