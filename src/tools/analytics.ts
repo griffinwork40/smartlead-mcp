@@ -42,7 +42,7 @@ export async function getCampaignStatistics(
     content: [
       {
         type: 'text',
-        text: `Campaign ${params.campaign_id} statistics:\n\n${JSON.stringify(stats, null, 2)}`,
+        text: JSON.stringify(stats, null, 2),
       },
     ],
   };
@@ -63,7 +63,7 @@ export async function getCampaignAnalytics(
     content: [
       {
         type: 'text',
-        text: `Campaign ${params.campaign_id} analytics:\n\n${JSON.stringify(analytics, null, 2)}`,
+        text: JSON.stringify(analytics, null, 2),
       },
     ],
   };
@@ -87,7 +87,7 @@ export async function getCampaignAnalyticsByDate(
     content: [
       {
         type: 'text',
-        text: `Campaign ${params.campaign_id} analytics from ${params.start_date} to ${params.end_date}:\n\n${JSON.stringify(analytics, null, 2)}`,
+        text: JSON.stringify(analytics, null, 2),
       },
     ],
   };

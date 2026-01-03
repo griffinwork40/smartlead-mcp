@@ -33,7 +33,7 @@ export async function listEmailAccounts(
     content: [
       {
         type: 'text',
-        text: `Found ${accounts.length} email accounts:\n\n${JSON.stringify(accounts, null, 2)}`,
+        text: JSON.stringify(accounts, null, 2),
       },
     ],
   };
@@ -54,7 +54,7 @@ export async function getEmailAccount(
     content: [
       {
         type: 'text',
-        text: `Email account details:\n\n${JSON.stringify(account, null, 2)}`,
+        text: JSON.stringify(account, null, 2),
       },
     ],
   };
@@ -77,7 +77,7 @@ export async function updateWarmupSettings(
     content: [
       {
         type: 'text',
-        text: `Warmup settings updated successfully for email account ${email_account_id}.\n\nWarmup enabled: ${warmupData.warmup_enabled}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -98,7 +98,7 @@ export async function getWarmupStats(
     content: [
       {
         type: 'text',
-        text: `Warmup stats for email account ${params.account_id} (last 7 days):\n\n${JSON.stringify(stats, null, 2)}`,
+        text: JSON.stringify(stats, null, 2),
       },
     ],
   };
@@ -116,7 +116,7 @@ export async function reconnectFailedAccounts(
     content: [
       {
         type: 'text',
-        text: 'Reconnection process initiated for failed email accounts.\n\n' + JSON.stringify(result, null, 2),
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -146,7 +146,7 @@ export async function createEmailAccount(
     content: [
       {
         type: 'text',
-        text: `Email account created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -169,7 +169,7 @@ export async function updateEmailAccount(
     content: [
       {
         type: 'text',
-        text: `Email account ${email_account_id} updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };

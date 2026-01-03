@@ -39,7 +39,7 @@ export async function createCampaign(
     content: [
       {
         type: 'text',
-        text: `Campaign created successfully!\n\nID: ${result.id}\nName: ${result.name}\nCreated: ${result.created_at}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -78,7 +78,7 @@ export async function listCampaigns(
     content: [
       {
         type: 'text',
-        text: `Found ${campaigns.length} campaigns:\n\n${JSON.stringify(campaigns, null, 2)}`,
+        text: JSON.stringify(campaigns, null, 2),
       },
     ],
   };
@@ -101,7 +101,7 @@ export async function updateCampaignSchedule(
     content: [
       {
         type: 'text',
-        text: result.ok ? 'Campaign schedule updated successfully!' : 'Failed to update campaign schedule.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -124,7 +124,7 @@ export async function updateCampaignSettings(
     content: [
       {
         type: 'text',
-        text: result.ok ? 'Campaign settings updated successfully!' : 'Failed to update campaign settings.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -147,9 +147,7 @@ export async function updateCampaignStatus(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Campaign status updated to ${params.status} successfully!`
-          : 'Failed to update campaign status.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -170,7 +168,7 @@ export async function deleteCampaign(
     content: [
       {
         type: 'text',
-        text: result.ok ? `Campaign ${params.campaign_id} deleted successfully!` : 'Failed to delete campaign.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -191,7 +189,7 @@ export async function listCampaignEmailAccounts(
     content: [
       {
         type: 'text',
-        text: `Found ${accounts.length} email accounts for campaign ${params.campaign_id}:\n\n${JSON.stringify(accounts, null, 2)}`,
+        text: JSON.stringify(accounts, null, 2),
       },
     ],
   };
@@ -214,7 +212,7 @@ export async function addCampaignEmailAccounts(
     content: [
       {
         type: 'text',
-        text: `Successfully added ${params.email_account_ids.length} email accounts to campaign ${params.campaign_id}.`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -237,7 +235,7 @@ export async function removeCampaignEmailAccounts(
     content: [
       {
         type: 'text',
-        text: `Successfully removed ${params.email_account_ids.length} email accounts from campaign ${params.campaign_id}.`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -268,9 +266,7 @@ export async function saveCampaignSequences(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Successfully ${action} ${seqCount} email sequence(s) for campaign ${campaign_id}!`
-          : `Failed to save sequences for campaign ${campaign_id}.`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
