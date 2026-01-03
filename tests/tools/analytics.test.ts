@@ -43,8 +43,10 @@ describe('Analytics Tools', () => {
         offset: 0,
         limit: 100,
       });
-      expect(result.content[0].text).toContain('Campaign 123 statistics');
-      expect(result.content[0].text).toContain('total_sent');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.total_sent).toBeDefined();
     });
 
     it('should get campaign statistics with custom pagination', async () => {
@@ -169,9 +171,11 @@ describe('Analytics Tools', () => {
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/campaigns/456/analytics');
-      expect(result.content[0].text).toContain('Campaign 456 analytics');
-      expect(result.content[0].text).toContain('sent_count');
-      expect(result.content[0].text).toContain('open_rate');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.sent_count).toBeDefined();
+      expect(parsed.open_rate).toBeDefined();
     });
 
     it('should handle campaign with no analytics data', async () => {
@@ -182,7 +186,9 @@ describe('Analytics Tools', () => {
         { campaign_id: 456 }
       );
 
-      expect(result.content[0].text).toContain('Campaign 456 analytics');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toEqual({});
     });
 
     it('should throw validation error for invalid campaign_id', async () => {
@@ -226,9 +232,12 @@ describe('Analytics Tools', () => {
         start_date: '2025-01-01',
         end_date: '2025-01-31',
       });
-      expect(result.content[0].text).toContain('Campaign 789 analytics');
-      expect(result.content[0].text).toContain('2025-01-01');
-      expect(result.content[0].text).toContain('2025-01-31');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed['2025-01-01']).toBeDefined();
+      expect(parsed['2025-01-02']).toBeDefined();
+      expect(parsed['2025-01-03']).toBeDefined();
     });
 
     it('should handle single day date range', async () => {

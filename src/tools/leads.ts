@@ -61,13 +61,7 @@ export async function addLeadsToCampaign(
     content: [
       {
         type: 'text',
-        text: `Leads uploaded to campaign ${params.campaign_id}:\n\n` +
-          `✓ Successfully uploaded: ${result.upload_count}\n` +
-          `✓ Total leads in campaign: ${result.total_leads}\n` +
-          `- Already in campaign: ${result.already_added_to_campaign}\n` +
-          `- Duplicates: ${result.duplicate_count}\n` +
-          `- Invalid emails: ${result.invalid_email_count}\n` +
-          `- Unsubscribed: ${result.unsubscribed_leads}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -90,9 +84,7 @@ export async function pauseLead(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Lead ${params.lead_id} paused successfully in campaign ${params.campaign_id}.`
-          : 'Failed to pause lead.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -121,9 +113,7 @@ export async function resumeLead(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Lead ${params.lead_id} resumed successfully in campaign ${params.campaign_id}.`
-          : 'Failed to resume lead.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -144,9 +134,7 @@ export async function deleteLeadFromCampaign(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Lead ${params.lead_id} deleted successfully from campaign ${params.campaign_id}.`
-          : 'Failed to delete lead.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -169,9 +157,7 @@ export async function unsubscribeLeadFromCampaign(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Lead ${params.lead_id} unsubscribed successfully from campaign ${params.campaign_id}.`
-          : 'Failed to unsubscribe lead.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -213,9 +199,7 @@ export async function unsubscribeLeadGlobally(
     content: [
       {
         type: 'text',
-        text: result.ok
-          ? `Lead ${params.lead_id} unsubscribed globally from all campaigns.`
-          : 'Failed to unsubscribe lead globally.',
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };

@@ -50,8 +50,11 @@ describe('Lead Tools', () => {
         offset: 0,
         limit: 100,
       });
-      expect(result.content[0].text).toContain('Found 150 total leads');
-      expect(result.content[0].text).toContain('Showing 2 leads');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.total_leads).toBe(150);
+      expect(parsed.data).toHaveLength(2);
     });
 
     it('should list leads with custom pagination', async () => {
@@ -113,8 +116,11 @@ describe('Lead Tools', () => {
       expect(mockClient.post).toHaveBeenCalledWith('/campaigns/123/leads', {
         lead_list: leadList,
       });
-      expect(result.content[0].text).toContain('Successfully uploaded: 3');
-      expect(result.content[0].text).toContain('Total leads in campaign: 50');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.upload_count).toBe(3);
+      expect(parsed.total_leads).toBe(50);
     });
 
     it('should add leads with all optional fields', async () => {
@@ -189,10 +195,12 @@ describe('Lead Tools', () => {
         }
       );
 
-      expect(result.content[0].text).toContain('Already in campaign: 2');
-      expect(result.content[0].text).toContain('Duplicates: 1');
-      expect(result.content[0].text).toContain('Invalid emails: 3');
-      expect(result.content[0].text).toContain('Unsubscribed: 1');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.already_added_to_campaign).toBe(2);
+      expect(parsed.duplicate_count).toBe(1);
+      expect(parsed.invalid_email_count).toBe(3);
+      expect(parsed.unsubscribed_leads).toBe(1);
     });
 
     it('should throw validation error for invalid email', async () => {
@@ -227,8 +235,9 @@ describe('Lead Tools', () => {
       );
 
       expect(mockClient.post).toHaveBeenCalledWith('/campaigns/123/leads/456/pause');
-      expect(result.content[0].text).toContain('Lead 456 paused successfully');
-      expect(result.content[0].text).toContain('campaign 123');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should report failure when pause fails', async () => {
@@ -239,7 +248,9 @@ describe('Lead Tools', () => {
         { campaign_id: 123, lead_id: 456 }
       );
 
-      expect(result.content[0].text).toContain('Failed to pause lead');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -256,7 +267,9 @@ describe('Lead Tools', () => {
         '/campaigns/123/leads/456/resume',
         {}
       );
-      expect(result.content[0].text).toContain('Lead 456 resumed successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should resume a lead with delay', async () => {
@@ -281,7 +294,9 @@ describe('Lead Tools', () => {
         { campaign_id: 123, lead_id: 456 }
       );
 
-      expect(result.content[0].text).toContain('Failed to resume lead');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -295,7 +310,9 @@ describe('Lead Tools', () => {
       );
 
       expect(mockClient.delete).toHaveBeenCalledWith('/campaigns/123/leads/456');
-      expect(result.content[0].text).toContain('Lead 456 deleted successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should report failure when delete fails', async () => {
@@ -306,7 +323,9 @@ describe('Lead Tools', () => {
         { campaign_id: 123, lead_id: 456 }
       );
 
-      expect(result.content[0].text).toContain('Failed to delete lead');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -320,7 +339,9 @@ describe('Lead Tools', () => {
       );
 
       expect(mockClient.post).toHaveBeenCalledWith('/campaigns/123/leads/456/unsubscribe');
-      expect(result.content[0].text).toContain('Lead 456 unsubscribed successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should report failure when unsubscribe fails', async () => {
@@ -331,7 +352,9 @@ describe('Lead Tools', () => {
         { campaign_id: 123, lead_id: 456 }
       );
 
-      expect(result.content[0].text).toContain('Failed to unsubscribe lead');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -346,8 +369,10 @@ describe('Lead Tools', () => {
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/leads', { email: 'john@example.com' });
-      expect(result.content[0].text).toContain('Lead found');
-      expect(result.content[0].text).toContain('john@example.com');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.email).toBe('john@example.com');
     });
 
     it('should throw validation error for invalid email format', async () => {
@@ -370,7 +395,9 @@ describe('Lead Tools', () => {
       );
 
       expect(mockClient.post).toHaveBeenCalledWith('/leads/789/unsubscribe');
-      expect(result.content[0].text).toContain('Lead 789 unsubscribed globally');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should report failure when global unsubscribe fails', async () => {
@@ -381,7 +408,9 @@ describe('Lead Tools', () => {
         { lead_id: 789 }
       );
 
-      expect(result.content[0].text).toContain('Failed to unsubscribe lead globally');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -399,9 +428,12 @@ describe('Lead Tools', () => {
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/leads/789/campaigns');
-      expect(result.content[0].text).toContain('Found 2 campaigns');
-      expect(result.content[0].text).toContain('Campaign 1');
-      expect(result.content[0].text).toContain('Campaign 2');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(2);
+      expect(parsed[0].name).toBe('Campaign 1');
+      expect(parsed[1].name).toBe('Campaign 2');
     });
 
     it('should handle lead with no campaigns', async () => {
@@ -412,7 +444,10 @@ describe('Lead Tools', () => {
         { lead_id: 789 }
       );
 
-      expect(result.content[0].text).toContain('Found 0 campaigns');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(0);
     });
 
     it('should throw validation error for invalid lead_id', async () => {

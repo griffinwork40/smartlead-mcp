@@ -42,8 +42,10 @@ describe('Campaign Tools', () => {
       );
 
       expect(mockClient.post).toHaveBeenCalledWith('/campaigns/create', { name: 'New Campaign' });
-      expect(result.content[0].text).toContain('Campaign created successfully');
-      expect(result.content[0].text).toContain('New Campaign');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.name).toBe('New Campaign');
     });
 
     it('should create a campaign with optional client_id', async () => {
@@ -112,9 +114,12 @@ describe('Campaign Tools', () => {
       const result = await campaignTools.listCampaigns(mockClient as unknown as SmartleadClient);
 
       expect(mockClient.get).toHaveBeenCalledWith('/campaigns');
-      expect(result.content[0].text).toContain('Found 2 campaigns');
-      expect(result.content[0].text).toContain('Campaign 1');
-      expect(result.content[0].text).toContain('Campaign 2');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(2);
+      expect(parsed[0].name).toBe('Campaign 1');
+      expect(parsed[1].name).toBe('Campaign 2');
     });
 
     it('should handle empty campaign list', async () => {
@@ -122,7 +127,10 @@ describe('Campaign Tools', () => {
 
       const result = await campaignTools.listCampaigns(mockClient as unknown as SmartleadClient);
 
-      expect(result.content[0].text).toContain('Found 0 campaigns');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(0);
     });
   });
 
@@ -153,7 +161,9 @@ describe('Campaign Tools', () => {
         min_time_btw_emails: 30,
         max_new_leads_per_day: 100,
       });
-      expect(result.content[0].text).toContain('updated successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should update campaign schedule with partial fields', async () => {
@@ -177,7 +187,9 @@ describe('Campaign Tools', () => {
         { campaign_id: 123, timezone: 'UTC' }
       );
 
-      expect(result.content[0].text).toContain('Failed to update');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -204,7 +216,9 @@ describe('Campaign Tools', () => {
         send_as_plain_text: false,
         follow_up_percentage: 50,
       });
-      expect(result.content[0].text).toContain('updated successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should throw validation error for invalid follow_up_percentage', async () => {
@@ -229,8 +243,9 @@ describe('Campaign Tools', () => {
         );
 
         expect(mockClient.post).toHaveBeenCalledWith('/campaigns/123/status', { status });
-        expect(result.content[0].text).toContain(status);
-        expect(result.content[0].text).toContain('successfully');
+        // Verify JSON response
+        const parsed = JSON.parse(result.content[0].text);
+        expect(parsed.ok).toBe(true);
       }
     );
 
@@ -254,8 +269,9 @@ describe('Campaign Tools', () => {
       );
 
       expect(mockClient.delete).toHaveBeenCalledWith('/campaigns/456');
-      expect(result.content[0].text).toContain('deleted successfully');
-      expect(result.content[0].text).toContain('456');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(true);
     });
 
     it('should report failure when delete fails', async () => {
@@ -266,7 +282,9 @@ describe('Campaign Tools', () => {
         { campaign_id: 456 }
       );
 
-      expect(result.content[0].text).toContain('Failed to delete');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.ok).toBe(false);
     });
   });
 
@@ -284,8 +302,11 @@ describe('Campaign Tools', () => {
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/campaigns/123/email-accounts');
-      expect(result.content[0].text).toContain('Found 2 email accounts');
-      expect(result.content[0].text).toContain('account1@example.com');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(2);
+      expect(parsed[0].from_email).toBe('account1@example.com');
     });
 
     it('should handle campaign with no email accounts', async () => {
@@ -296,7 +317,10 @@ describe('Campaign Tools', () => {
         { campaign_id: 123 }
       );
 
-      expect(result.content[0].text).toContain('Found 0 email accounts');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(0);
     });
   });
 
@@ -312,7 +336,9 @@ describe('Campaign Tools', () => {
       expect(mockClient.post).toHaveBeenCalledWith('/campaigns/123/email-accounts', {
         email_account_ids: [1, 2, 3],
       });
-      expect(result.content[0].text).toContain('Successfully added 3 email accounts');
+      // Verify JSON response (the result object is returned as-is)
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
     });
 
     it('should throw validation error for empty email_account_ids', async () => {
@@ -337,7 +363,9 @@ describe('Campaign Tools', () => {
       expect(mockClient.delete).toHaveBeenCalledWith('/campaigns/123/email-accounts', {
         email_account_ids: [1, 2],
       });
-      expect(result.content[0].text).toContain('Successfully removed 2 email accounts');
+      // Verify JSON response (the result object is returned as-is)
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
     });
 
     it('should throw validation error for invalid email_account_ids', async () => {

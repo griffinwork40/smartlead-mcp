@@ -1,6 +1,6 @@
 {
   "name": "smartlead-mcp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "MCP server for Smartlead API - enables AI assistants to manage email campaigns, leads, and analytics",
   "type": "module",
   "main": "./build/index.js",

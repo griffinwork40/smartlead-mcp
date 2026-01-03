@@ -77,7 +77,7 @@ export async function updateWarmupSettings(
     content: [
       {
         type: 'text',
-        text: `Warmup settings updated successfully for email account ${email_account_id}.\n\nWarmup enabled: ${warmupData.warmup_enabled}`,
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };
@@ -116,7 +116,7 @@ export async function reconnectFailedAccounts(
     content: [
       {
         type: 'text',
-        text: 'Reconnection process initiated for failed email accounts.\n\n' + JSON.stringify(result, null, 2),
+        text: JSON.stringify(result, null, 2),
       },
     ],
   };

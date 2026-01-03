@@ -45,8 +45,11 @@ describe('Email Account Tools', () => {
         offset: 0,
         limit: 100,
       });
-      expect(result.content[0].text).toContain('Found 2 email accounts');
-      expect(result.content[0].text).toContain('account1@example.com');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(2);
+      expect(parsed[0].from_email).toBe('account1@example.com');
     });
 
     it('should list email accounts with custom pagination', async () => {
@@ -71,7 +74,10 @@ describe('Email Account Tools', () => {
         {}
       );
 
-      expect(result.content[0].text).toContain('Found 0 email accounts');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(0);
     });
 
     it('should throw validation error for limit exceeding 100', async () => {
@@ -99,8 +105,11 @@ describe('Email Account Tools', () => {
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/email-accounts/123/');
-      expect(result.content[0].text).toContain('test@example.com');
-      expect(result.content[0].text).toContain('Test Sender');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.from_email).toBe('test@example.com');
+      expect(parsed.from_name).toBe('Test Sender');
     });
 
     it('should throw validation error for invalid account_id', async () => {
@@ -147,8 +156,9 @@ describe('Email Account Tools', () => {
         reply_rate_percentage: 30,
         warmup_key_id: 'key-123',
       });
-      expect(result.content[0].text).toContain('Warmup settings updated');
-      expect(result.content[0].text).toContain('Warmup enabled: true');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
     });
 
     it('should disable warmup', async () => {
@@ -162,7 +172,9 @@ describe('Email Account Tools', () => {
       expect(mockClient.post).toHaveBeenCalledWith('/email-accounts/123/warmup', {
         warmup_enabled: false,
       });
-      expect(result.content[0].text).toContain('Warmup enabled: false');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
     });
 
     it('should throw validation error for invalid reply_rate_percentage', async () => {
@@ -201,8 +213,11 @@ describe('Email Account Tools', () => {
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/email-accounts/123/warmup-stats');
-      expect(result.content[0].text).toContain('Warmup stats');
-      expect(result.content[0].text).toContain('last 7 days');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.sent).toBe(100);
+      expect(parsed.delivered).toBe(95);
     });
 
     it('should throw validation error for invalid account_id', async () => {
@@ -224,7 +239,9 @@ describe('Email Account Tools', () => {
       );
 
       expect(mockClient.post).toHaveBeenCalledWith('/email-accounts/reconnect-failed-email-accounts', {});
-      expect(result.content[0].text).toContain('Reconnection process initiated');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
     });
 
     it('should include response data in result', async () => {
@@ -234,7 +251,9 @@ describe('Email Account Tools', () => {
         mockClient as unknown as SmartleadClient
       );
 
-      expect(result.content[0].text).toContain('accounts_processed');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed.accounts_processed).toBe(3);
     });
   });
 
@@ -265,7 +284,10 @@ describe('Email Account Tools', () => {
         ...accountData,
         id: null,
       });
-      expect(result.content[0].text).toContain('Email account created successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.id).toBe(999);
     });
 
     it('should create email account with optional client_id', async () => {
@@ -390,7 +412,10 @@ describe('Email Account Tools', () => {
       expect(mockClient.post).toHaveBeenCalledWith('/email-accounts/123', {
         from_name: 'Updated Sender',
       });
-      expect(result.content[0].text).toContain('Email account 123 updated successfully');
+      // Verify JSON response
+      const parsed = JSON.parse(result.content[0].text);
+      expect(parsed).toBeDefined();
+      expect(parsed.from_name).toBe('Updated Sender');
     });
 
     it('should update multiple fields at once', async () => {
